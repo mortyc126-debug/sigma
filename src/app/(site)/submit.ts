@@ -29,7 +29,7 @@ export async function applyAsModel(formData: FormData) {
   }
 
   await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || "Sigma Models <no-reply@example.com>",
+    from: process.env.RESEND_FROM_EMAIL || "Sigma Models <no-reply@sigma-model.com>",
     to: TARGET_EMAIL,
     subject: `Новая анкета модели — ${fullName}`,
     html: `
