@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { VkConnectionsSection } from "@/components/admin/vk-connections-section";
+import { TgConnectionsSection } from "@/components/admin/tg-connections-section";
 import { BalancesSection } from "@/components/admin/balances-section";
 import { ModelsSection } from "@/components/admin/models-section";
 import { InvitesSection } from "@/components/admin/invites-section";
@@ -118,7 +119,7 @@ export default async function DashboardPage({
                   Панель управления агентством
                 </p>
                 <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground/55">
-                  Модели, балансы, выплаты, приглашения, кастинги, букинги, VK-подключения.
+                  Модели, балансы, выплаты, приглашения, кастинги, букинги, VK-подключения, Telegram-подключения.
                 </p>
               </div>
             </div>
@@ -129,6 +130,7 @@ export default async function DashboardPage({
             <BookingsStatusSection />
             <InvitesSection />
             <VkConnectionsSection />
+            <TgConnectionsSection />
           </TabsContent>
         )}
       </Tabs>

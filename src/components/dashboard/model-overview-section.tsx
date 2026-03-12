@@ -32,6 +32,14 @@ export async function ModelOverviewSection() {
         .maybeSingle()
     : { data: null as any };
 
+  const { data: tgConnection } = modelId
+    ? await supabaseAdmin
+        .from("tg_account_connections")
+        .select("status")
+        .eq("model_id", modelId)
+        .maybeSingle()
+    : { data: null as any };
+
   const { data: photos } = modelId
     ? await supabaseAdmin
         .from("model_photos")
@@ -161,6 +169,28 @@ export async function ModelOverviewSection() {
                   className="text-amber-300/65 underline-offset-4 hover:underline"
                 >
                   «Подключение VK»
+                </a>
+                .
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* TG notice */}
+        {(!tgConnection || tgConnection.status !== "completed") && (
+          <div className="mt-4 flex items-start gap-3 rounded-xl border border-amber-400/15 bg-amber-400/[0.04] px-4 py-3">
+            <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400/60" />
+            <div>
+              <p className="font-condensed text-[10px] font-semibold uppercase tracking-[0.24em] text-amber-200/75">
+                Подключите Telegram
+              </p>
+              <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground/50">
+                Для полного доступа к возможностям агентства добавьте аккаунт в разделе{" "}
+                <a
+                  href="/dashboard/tg-connect"
+                  className="text-amber-300/65 underline-offset-4 hover:underline"
+                >
+                  «Подключение Telegram»
                 </a>
                 .
               </p>
