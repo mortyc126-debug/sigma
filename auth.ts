@@ -222,7 +222,6 @@ export const authConfig: NextAuthOptions = {
     },
     async session({ session, user }) {
       if (session.user) {
-        // @ts-expect-error кастомные поля в сессии
         session.user.id = user.id;
 
         // Читаем роль из таблицы profiles.
@@ -232,7 +231,6 @@ export const authConfig: NextAuthOptions = {
           .eq("id", user.id)
           .maybeSingle();
 
-        // @ts-expect-error кастомные поля в сессии
         session.user.role = data?.role ?? "model";
       }
       return session;
