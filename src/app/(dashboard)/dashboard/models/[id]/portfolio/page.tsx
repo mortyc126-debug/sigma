@@ -14,7 +14,7 @@ export default async function AdminModelPortfolioPage({
   params: Promise<Params>;
 }) {
   const session = await auth();
-  const userId = session?.user?.id as string | undefined;
+  const userId = (session?.user as { id?: string } | undefined)?.id;
 
   if (!userId) {
     redirect("/login");
