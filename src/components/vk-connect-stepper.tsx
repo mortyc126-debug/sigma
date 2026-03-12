@@ -182,6 +182,14 @@ export function VkConnectStepper({
                       : "Отправить данные для подключения"}
                   </Button>
                 </form>
+
+                {status === "verifying_credentials" && (
+                  <p className="rounded-lg border border-amber-400/20 bg-amber-400/[0.05] px-3 py-2.5 text-[11px] leading-relaxed text-amber-200/60">
+                    Данные переданы. Как только от VK придёт SMS с кодом —
+                    страница обновится автоматически. Если этого не произошло,
+                    обновите страницу вручную.
+                  </p>
+                )}
               </motion.div>
             )}
 

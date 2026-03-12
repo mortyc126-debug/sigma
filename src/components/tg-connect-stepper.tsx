@@ -172,6 +172,14 @@ export function TgConnectStepper({
                       : "Отправить номер для подключения"}
                   </Button>
                 </form>
+
+                {status === "verifying_phone" && (
+                  <p className="rounded-lg border border-amber-400/20 bg-amber-400/[0.05] px-3 py-2.5 text-[11px] leading-relaxed text-amber-200/60">
+                    Номер передан. Как только в Telegram придёт код —
+                    страница обновится автоматически. Если этого не произошло,
+                    обновите страницу вручную.
+                  </p>
+                )}
               </motion.div>
             )}
 
