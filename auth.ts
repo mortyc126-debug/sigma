@@ -88,6 +88,24 @@ export const authConfig: NextAuthOptions = {
 
         const from = process.env.RESEND_FROM_EMAIL || "Sigma Models <official@sigma-model.com>";
 
+        // Строим чистый URL для письма — без /api/auth/callback/email,
+        // который триггерит Google Safe Browsing.
+        // /auth/verify?t=TOKEN&r=CALLBACK делает серверный редирект на NextAuth callback.
+        let loginUrl = url;
+        try {
+          const nextAuthUrl = new URL(url);
+          const verificationToken = nextAuthUrl.searchParams.get("token");
+          const callbackParam = nextAuthUrl.searchParams.get("callbackUrl") ?? "/dashboard";
+          if (verificationToken) {
+            const cleanUrl = new URL("/auth/verify", nextAuthUrl.origin);
+            cleanUrl.searchParams.set("t", verificationToken);
+            cleanUrl.searchParams.set("r", callbackParam);
+            loginUrl = cleanUrl.toString();
+          }
+        } catch {
+          // если URL не распарсился — оставляем оригинальный
+        }
+
         try {
           const result = await resend.emails.send({
             from,
@@ -110,7 +128,7 @@ export const authConfig: NextAuthOptions = {
                   Если вы не запрашивали вход, просто проигнорируйте это письмо.
                 </p>
                 <div style="text-align:center;margin:28px 0;">
-                  <a href="${url}" style="display:inline-block;padding:12px 24px;background:#f7d26a;color:#111016;text-decoration:none;border-radius:999px;font-size:13px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;">
+                  <a href="${loginUrl}" style="display:inline-block;padding:12px 24px;background:#f7d26a;color:#111016;text-decoration:none;border-radius:999px;font-size:13px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;">
                     Войти в кабинет
                   </a>
                 </div>
