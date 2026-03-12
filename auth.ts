@@ -206,26 +206,41 @@ export const authConfig: NextAuthOptions = {
 
       token = extractInvite(request?.nextUrl) ?? extractInvite(request?.url);
 
-      if (!token) {
-        return false;
-      }
+      const nowIso = new Date().toISOString();
 
-      const { data: invite } = await supabaseAdmin
-        .from("invite_codes")
-        .select("id, role, email, expires_at, used_by")
-        .eq("token", token)
-        .is("used_by", null)
-        .maybeSingle();
+      let invite: { id: string; role: string | null; email: string | null; expires_at: string | null; used_by: string | null } | null = null;
+
+      if (token) {
+        // Путь 1: invite-токен передан через callbackUrl (основной путь — invite page).
+        const { data } = await supabaseAdmin
+          .from("invite_codes")
+          .select("id, role, email, expires_at, used_by")
+          .eq("token", token)
+          .is("used_by", null)
+          .maybeSingle();
+        invite = data ?? null;
+      } else {
+        // Путь 2: пользователь зашёл через /login напрямую (без токена в URL).
+        // Ищем активный инвайт, привязанный к его email.
+        const { data } = await supabaseAdmin
+          .from("invite_codes")
+          .select("id, role, email, expires_at, used_by")
+          .eq("email", user.email.toLowerCase())
+          .is("used_by", null)
+          .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
+          .maybeSingle();
+        invite = data ?? null;
+      }
 
       if (!invite) {
         return false;
       }
 
-      if (invite.expires_at && invite.expires_at < new Date().toISOString()) {
+      if (invite.expires_at && invite.expires_at < nowIso) {
         return false;
       }
 
-      if (invite.email && invite.email !== user.email) {
+      if (invite.email && invite.email.toLowerCase() !== user.email.toLowerCase()) {
         return false;
       }
 
