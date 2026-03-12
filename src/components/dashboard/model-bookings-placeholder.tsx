@@ -113,8 +113,9 @@ export async function ModelBookingsPlaceholder() {
       .maybeSingle(),
   ]);
 
+  const modelData = modelRow?.data ?? null;
   const hasProfileData = Boolean(
-    modelRow?.height_cm || modelRow?.city || (modelRow?.parameters && String(modelRow.parameters).trim()),
+    modelData?.height_cm || modelData?.city || (modelData?.parameters && String(modelData.parameters).trim()),
   );
   const photoCount = photosRes.count ?? 0;
   const vkConnected = Boolean(vkRes.data);
