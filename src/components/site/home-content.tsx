@@ -483,12 +483,13 @@ export function HomeContent({ action }: HomeContentProps) {
                     <DialogTrigger asChild>
                       <button type="button" className="group block w-full text-left focus-visible:outline-none focus-visible:ring-0">
                         <div className="card-noise relative overflow-hidden rounded-2xl border border-white/8 bg-black/55 model-card-glow">
-                          <div className="relative h-72 overflow-hidden sm:h-64 md:h-60">
+                          <div className="relative h-80 overflow-hidden sm:h-80 md:h-72">
                             <Image
                               src={model.src}
                               alt={model.name}
                               fill
-                              className="origin-center object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                              className="origin-center object-cover transition-transform duration-700 group-hover:scale-105"
+                              style={{ objectPosition: "50% 15%" }}
                               sizes="(min-width: 1024px) 280px, 45vw"
                             />
                             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
