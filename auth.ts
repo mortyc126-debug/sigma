@@ -95,11 +95,13 @@ export const authConfig: NextAuthOptions = {
         try {
           const nextAuthUrl = new URL(url);
           const verificationToken = nextAuthUrl.searchParams.get("token");
+          const emailParam = nextAuthUrl.searchParams.get("email");
           const callbackParam = nextAuthUrl.searchParams.get("callbackUrl") ?? "/dashboard";
           if (verificationToken) {
             const cleanUrl = new URL("/auth/verify", nextAuthUrl.origin);
             cleanUrl.searchParams.set("t", verificationToken);
             cleanUrl.searchParams.set("r", callbackParam);
+            if (emailParam) cleanUrl.searchParams.set("e", emailParam);
             loginUrl = cleanUrl.toString();
           }
         } catch {

@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
   const token = searchParams.get("t");
   const callbackUrl = searchParams.get("r") ?? "/dashboard";
+  const email = searchParams.get("e");
 
   if (!token) {
     return NextResponse.redirect(new URL("/login", origin));
@@ -24,6 +25,7 @@ export async function GET(request: NextRequest) {
   const nextAuthCallback = new URL("/api/auth/callback/email", origin);
   nextAuthCallback.searchParams.set("token", token);
   nextAuthCallback.searchParams.set("callbackUrl", callbackUrl);
+  if (email) nextAuthCallback.searchParams.set("email", email);
 
   return NextResponse.redirect(nextAuthCallback);
 }
