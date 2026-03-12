@@ -148,17 +148,28 @@ export const authConfig: NextAuthOptions = {
         return true;
       }
 
+      // The invite token is embedded inside the callbackUrl query param
+      // (e.g. /dashboard?invite=<token>) so it survives the NextAuth email
+      // verification round-trip.  We must NOT read request.nextUrl's own
+      // "token" param — that is NextAuth's internal verification token.
       let token: string | null = null;
-      if (request?.nextUrl instanceof URL) {
-        token = request.nextUrl.searchParams.get("token");
-      }
-      if (!token && typeof request?.url === "string") {
+
+      const extractInvite = (rawUrl: string | URL | undefined | null): string | null => {
+        if (!rawUrl) return null;
         try {
-          token = new URL(request.url).searchParams.get("token");
+          const url = rawUrl instanceof URL ? rawUrl : new URL(rawUrl, "http://localhost");
+          const callbackParam = url.searchParams.get("callbackUrl");
+          if (callbackParam) {
+            const cb = new URL(decodeURIComponent(callbackParam), "http://localhost");
+            return cb.searchParams.get("invite");
+          }
         } catch {
-          // ignore invalid url
+          // ignore
         }
-      }
+        return null;
+      };
+
+      token = extractInvite(request?.nextUrl) ?? extractInvite(request?.url);
 
       if (!token) {
         return false;
