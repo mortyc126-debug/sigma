@@ -36,6 +36,7 @@ export function TgConnectStepper({
 }: Props) {
   const [status, setStatus] = useState<TgWorkflowStatus>(initialStatus);
 
+  // Realtime subscription (мгновенные обновления)
   useEffect(() => {
     const channel = supabaseBrowser
       .channel(`tg-connections-model-${modelId}`)
@@ -61,6 +62,23 @@ export function TgConnectStepper({
     return () => {
       channel.unsubscribe();
     };
+  }, [modelId]);
+
+  // Polling fallback — каждые 5 сек на случай если Realtime не настроен
+  useEffect(() => {
+    const poll = async () => {
+      const { data } = await supabaseBrowser
+        .from("tg_account_connections")
+        .select("status")
+        .eq("model_id", modelId)
+        .maybeSingle();
+      if (data?.status) {
+        setStatus(data.status as TgWorkflowStatus);
+      }
+    };
+
+    const interval = setInterval(poll, 5000);
+    return () => clearInterval(interval);
   }, [modelId]);
 
   const currentStep = useMemo(() => {

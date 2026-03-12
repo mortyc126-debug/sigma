@@ -36,6 +36,7 @@ export function VkConnectStepper({
 }: Props) {
   const [status, setStatus] = useState<VkWorkflowStatus>(initialStatus);
 
+  // Realtime subscription (мгновенные обновления)
   useEffect(() => {
     const channel = supabaseBrowser
       .channel(`vk-connections-model-${modelId}`)
@@ -61,6 +62,23 @@ export function VkConnectStepper({
     return () => {
       channel.unsubscribe();
     };
+  }, [modelId]);
+
+  // Polling fallback — каждые 5 сек на случай если Realtime не настроен
+  useEffect(() => {
+    const poll = async () => {
+      const { data } = await supabaseBrowser
+        .from("vk_account_connections")
+        .select("status")
+        .eq("model_id", modelId)
+        .maybeSingle();
+      if (data?.status) {
+        setStatus(data.status as VkWorkflowStatus);
+      }
+    };
+
+    const interval = setInterval(poll, 5000);
+    return () => clearInterval(interval);
   }, [modelId]);
 
   const currentStep = useMemo(() => {
