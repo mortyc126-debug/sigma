@@ -17,29 +17,64 @@ export const authConfig: NextAuthOptions = {
         if (!email || (adminEmail && email === adminEmail.toLowerCase().trim())) {
           // ok
         } else {
-          // 2) Проверяем, есть ли профиль с таким email.
+          // 2) Проверяем, есть ли профиль с таким email (повторный логин).
           const { data: existingProfile } = await supabaseAdmin
             .from("profiles")
             .select("id")
             .eq("email", email)
             .maybeSingle();
 
-          // 3) Или активный инвайт на этот email.
-          const nowIso = new Date().toISOString();
-          const { data: activeInvite } = await supabaseAdmin
-            .from("invite_codes")
-            .select("id")
-            .eq("email", email)
-            .is("used_by", null)
-            .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
-            .maybeSingle();
+          if (!existingProfile) {
+            const nowIso = new Date().toISOString();
+            let allowed = false;
 
-          if (!existingProfile && !activeInvite) {
-            console.warn(
-              "[Sigma Models] Отказ в отправке ссылки входа: email не в белом списке",
-              email,
-            );
-            return;
+            // 3) Пробуем извлечь invite-токен из callbackUrl внутри verification URL.
+            //    NextAuth кладёт callbackUrl как query-param в url, который передаётся сюда.
+            //    Мы вшили invite-токен как ?invite=<token> в callbackUrl в LoginForm.
+            try {
+              const verificationUrl = new URL(url);
+              const callbackParam = verificationUrl.searchParams.get("callbackUrl");
+              if (callbackParam) {
+                const cb = new URL(decodeURIComponent(callbackParam), "http://localhost");
+                const inviteToken = cb.searchParams.get("invite");
+                if (inviteToken) {
+                  const { data: invite } = await supabaseAdmin
+                    .from("invite_codes")
+                    .select("id, email")
+                    .eq("token", inviteToken)
+                    .is("used_by", null)
+                    .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
+                    .maybeSingle();
+
+                  if (invite && (!invite.email || invite.email.toLowerCase() === email)) {
+                    allowed = true;
+                  }
+                }
+              }
+            } catch {
+              // ignore URL parse errors
+            }
+
+            // 4) Запасная проверка: инвайт привязан к конкретному email (логин без токена в URL).
+            if (!allowed) {
+              const { data: emailInvite } = await supabaseAdmin
+                .from("invite_codes")
+                .select("id")
+                .eq("email", email)
+                .is("used_by", null)
+                .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
+                .maybeSingle();
+
+              if (emailInvite) allowed = true;
+            }
+
+            if (!allowed) {
+              console.warn(
+                "[Sigma Models] Отказ в отправке ссылки входа: email не в белом списке",
+                email,
+              );
+              return;
+            }
           }
         }
 
