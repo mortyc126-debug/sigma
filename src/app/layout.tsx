@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
+import { Geist, Geist_Mono, Cormorant_Garamond, Barlow_Condensed } from "next/font/google";
 import "./globals.css";
 import { CursorSpotlight } from "@/components/cursor-spotlight";
 
@@ -13,29 +13,50 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const playfair = Playfair_Display({
+const cormorant = Cormorant_Garamond({
   variable: "--font-display",
-  subsets: ["latin", "latin-ext"],
-  weight: ["500", "600", "700"],
+  subsets: ["latin", "latin-ext", "cyrillic"],
+  weight: ["300", "400", "500", "600"],
+  style: ["normal", "italic"],
+});
+
+const barlow = Barlow_Condensed({
+  variable: "--font-condensed",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://sigma-models.ru"),
   title: {
-    default: "Sigma Models — модельное агентство",
+    default: "Sigma Models — премиальное модельное агентство",
     template: "%s | Sigma Models",
   },
   description:
-    "Премиальное модельное агентство Sigma Models. Москва и филиалы по всей России. Профессиональные модели и кастинги уровня 2026 года.",
-  keywords: ["модельное агентство", "Sigma Models", "модели", "кастинг", "Москва", "премиум"],
+    "Sigma Models — закрытый пул, строгий кастинг, карьерное кураторство. Головной офис в Москве, филиалы в шести городах России.",
+  keywords: ["модельное агентство", "Sigma Models", "модели Москва", "премиальный кастинг", "fashion agency Russia"],
   openGraph: {
     type: "website",
     locale: "ru_RU",
     siteName: "Sigma Models",
-    title: "Sigma Models — модельное агентство",
+    title: "Sigma Models — закрытый пул. Строгий кастинг.",
     description:
-      "Премиальное модельное агентство с головным офисом в Москве и сетью филиалов по всей России.",
+      "Премиальное модельное агентство с головным офисом в Москве. Закрытый пул, кураторство карьеры, работа с федеральными и международными брендами.",
     url: "https://sigma-models.ru",
+    images: [
+      {
+        url: "/models/hero-1-new.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Sigma Models — премиальное модельное агентство",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sigma Models — закрытый пул. Строгий кастинг.",
+    description: "Премиальное модельное агентство России.",
+    images: ["/models/hero-1-new.jpg"],
   },
   icons: {
     icon: "/icon",
@@ -50,28 +71,29 @@ export default function RootLayout({
   return (
     <html lang="ru" className="dark" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} ${barlow.variable} antialiased`}
         suppressHydrationWarning
       >
         <div suppressHydrationWarning>
-          {/* Глобальный видео-фон для всего сайта */}
+          {/* Глобальный видео-фон */}
           <video
             className="pointer-events-none fixed inset-0 -z-20 h-full w-full object-cover"
             src="/videos/runway.mp4"
+            poster="/models/hero-1-new.jpg"
             autoPlay
             loop
             muted
             playsInline
           />
-          {/* Градиентное затемнение поверх видео — усилено для читаемости */}
-          <div className="pointer-events-none fixed inset-0 -z-10 bg-gradient-to-b from-black/75 via-black/60 to-black/75" />
-          {/* Лёгкая текстура «зерно» */}
+          {/* Затемнение поверх видео */}
+          <div className="pointer-events-none fixed inset-0 -z-10 bg-gradient-to-b from-black/80 via-black/65 to-black/80" />
+          {/* Зернистость */}
           <div className="grain-overlay" aria-hidden />
-          {/* Основной контент приложения */}
+          {/* Основной контент */}
           <div className="relative z-0">
             {children}
           </div>
-          {/* Круг-софит, следующий за курсором */}
+          {/* Курсор-гало */}
           <CursorSpotlight />
         </div>
       </body>
