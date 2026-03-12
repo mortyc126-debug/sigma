@@ -3,6 +3,13 @@
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { resend } from "@/lib/resend";
+import {
+  emailLayout,
+  emailHeading,
+  emailParagraph,
+  emailHighlight,
+  emailNote,
+} from "@/lib/email-layout";
 import { revalidatePath } from "next/cache";
 
 async function ensureAdmin() {
@@ -67,12 +74,13 @@ export async function adminApprovePayout(formData: FormData) {
         from: process.env.RESEND_FROM_EMAIL || "Sigma Models <official@sigma-model.com>",
         to: [to],
         subject: "Sigma Models — выплата выполнена",
-        html: `
-          <p>Здравствуйте.</p>
-          <p>Ваш запрос на вывод средств в размере <strong>${amountStr}</strong> выполнен.</p>
-          <p>Деньги переведены согласно указанным реквизитам.</p>
-          <p>С уважением,<br/>Sigma Models</p>
-        `,
+        html: emailLayout(
+          emailHeading("Выплата выполнена") +
+          emailParagraph("Ваш запрос на вывод средств успешно обработан.") +
+          emailHighlight(amountStr) +
+          emailParagraph("Деньги переведены согласно указанным реквизитам. Если в течение 2–3 рабочих дней средства не поступили — свяжитесь с агентством.") +
+          emailNote("Это уведомление сформировано автоматически после подтверждения выплаты администратором."),
+        ),
       });
     } catch (e) {
       console.warn("[Sigma Models] Payout approval email failed:", e);
@@ -145,13 +153,15 @@ export async function adminRejectPayout(formData: FormData) {
         from: process.env.RESEND_FROM_EMAIL || "Sigma Models <official@sigma-model.com>",
         to: [to],
         subject: "Sigma Models — заявка на вывод отклонена",
-        html: `
-          <p>Здравствуйте.</p>
-          <p>Ваш запрос на вывод <strong>${amountStr}</strong> отклонён.</p>
-          ${reason ? `<p>Причина: ${reason.replace(/</g, "&lt;")}</p>` : ""}
-          <p>Средства возвращены на баланс в личном кабинете.</p>
-          <p>С уважением,<br/>Sigma Models</p>
-        `,
+        html: emailLayout(
+          emailHeading("Заявка на вывод отклонена") +
+          emailParagraph("К сожалению, ваш запрос на вывод средств не был одобрен.") +
+          emailHighlight(amountStr) +
+          (reason
+            ? emailNote(`Причина: ${reason.replace(/</g, "&lt;")}`, "warning")
+            : "") +
+          emailParagraph("Сумма возвращена на баланс в вашем личном кабинете — вы можете подать новую заявку."),
+        ),
       });
     } catch (e) {
       console.warn("[Sigma Models] Payout rejection email failed:", e);

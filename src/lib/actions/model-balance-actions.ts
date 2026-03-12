@@ -3,6 +3,13 @@
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { resend } from "@/lib/resend";
+import {
+  emailLayout,
+  emailHeading,
+  emailParagraph,
+  emailTable,
+  emailNote,
+} from "@/lib/email-layout";
 import { revalidatePath } from "next/cache";
 
 async function getCurrentModel() {
@@ -114,18 +121,27 @@ export async function requestPayout(formData: FormData) {
   });
 
   if (resend) {
+    const amountStr = amount.toLocaleString("ru-RU", { minimumFractionDigits: 2 }) + " ₽";
+    const tableRows = [
+      { label: "Модель", value: `${profile.full_name ?? "—"} (${profile.email})` },
+      { label: "Сумма", value: `<strong style="color:#f7d26a;">${amountStr}</strong>` },
+      { label: "Банк / способ", value: bank },
+      { label: "Реквизиты", value: destination },
+      ...(comment ? [{ label: "Комментарий", value: comment }] : []),
+    ];
+
     await resend.emails.send({
       from:
         process.env.RESEND_FROM_EMAIL || "Sigma Models <no-reply@example.com>",
       to: "sigma-models@mail.ru",
-      subject: `Запрос на вывод средств — ${profile.full_name ?? profile.email}`,
-      text: [
-        `Модель: ${profile.full_name ?? "без имени"} (${profile.email})`,
-        `Сумма к выводу: ${amount.toFixed(2)} RUB`,
-        `Банк / способ: ${bank}`,
-        `Реквизиты: ${destination}`,
-        comment ? `Комментарий модели: ${comment}` : "",
-      ].filter(Boolean).join("\n"),
+      subject: `Запрос на вывод — ${profile.full_name ?? profile.email} · ${amountStr}`,
+      html: emailLayout(
+        emailHeading("Новый запрос на вывод средств") +
+        emailParagraph("Модель подала заявку на вывод. Необходимо проверить реквизиты и подтвердить выплату в панели администратора.") +
+        emailTable(tableRows) +
+        emailNote("Войдите в панель администратора, чтобы одобрить или отклонить заявку."),
+        "Уведомление администратора · Sigma Models",
+      ),
     });
   }
 
