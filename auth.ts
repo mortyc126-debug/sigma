@@ -111,7 +111,9 @@ export const authConfig: NextAuthOptions = {
     verifyRequest: "/auth/verify-request",
   },
   callbacks: {
-    async signIn({ user, request }) {
+    async signIn(args) {
+      const { user } = args;
+      const request = (args as { user?: { id?: string; email?: string | null }; request?: { nextUrl?: URL; url?: string } }).request;
       if (!user?.email) return false;
 
       const userId = user.id as string;
@@ -146,9 +148,17 @@ export const authConfig: NextAuthOptions = {
         return true;
       }
 
-      const token =
-        request?.nextUrl?.searchParams?.get("token") ??
-        request?.url?.searchParams?.get("token");
+      let token: string | null = null;
+      if (request?.nextUrl instanceof URL) {
+        token = request.nextUrl.searchParams.get("token");
+      }
+      if (!token && typeof request?.url === "string") {
+        try {
+          token = new URL(request.url).searchParams.get("token");
+        } catch {
+          // ignore invalid url
+        }
+      }
 
       if (!token) {
         return false;
