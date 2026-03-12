@@ -1,7 +1,7 @@
- "use client";
+"use client";
 
-import { useCallback, useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useCallback, useRef, useState, useEffect } from "react";
+import { motion, useScroll, useTransform, useInView, animate } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -81,47 +81,83 @@ const PARTNER_BRANDS = [
 
 const WHY_SIGMA = [
   {
+    num: "01",
     title: "Строгий отбор",
     text: "Работаем только с теми, кто подходит под премиальный сегмент и готов к долгосрочной карьере.",
   },
   {
+    num: "02",
     title: "Прозрачные условия",
     text: "Баланс, выплаты и история операций в личном кабинете. Никаких скрытых комиссий.",
   },
   {
+    num: "03",
     title: "Кураторство карьеры",
     text: "Персональный менеджер, план развития портфолио и доступ к кастингам уровня бренда.",
   },
   {
+    num: "04",
     title: "География",
     text: "Головной офис в Москве и филиалы в ключевых городах России. Единые стандарты везде.",
   },
 ];
 
+const STATS = [
+  { value: 10, suffix: "+", label: "лет на рынке" },
+  { value: 500, suffix: "+", label: "кампаний" },
+  { value: 6, suffix: "", label: "городов России" },
+  { value: 200, suffix: "+", label: "моделей" },
+];
+
+const MARQUEE_BRANDS = [
+  "Zara", "L'Oréal", "Sberbank", "Reserved", "T‑Bank", "Gloria Jeans",
+  "Zara", "L'Oréal", "Sberbank", "Reserved", "T‑Bank", "Gloria Jeans",
+];
+
 const staggerWrap = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.07 } },
+  visible: { transition: { staggerChildren: 0.08 } },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 22 },
+  hidden: { opacity: 0, y: 28 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.45, ease: [0.25, 0.4, 0.25, 1] as const },
+    transition: { duration: 0.55, ease: [0.25, 0.4, 0.25, 1] as const },
   },
 };
 
 const COLS = 3;
 const DISPERSE_PX = 140;
 
+/* ─────────────────── Animated Counter ─────────────────── */
+function Counter({ value, suffix }: { value: number; suffix: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+
+  useEffect(() => {
+    if (!inView || !ref.current) return;
+    const controls = animate(0, value, {
+      duration: 1.8,
+      ease: "easeOut",
+      onUpdate: (v) => {
+        if (ref.current) ref.current.textContent = Math.round(v).toString() + suffix;
+      },
+    });
+    return controls.stop;
+  }, [inView, value, suffix]);
+
+  return <span ref={ref}>0{suffix}</span>;
+}
+
+/* ─────────────────── Home Content ─────────────────── */
 export function HomeContent({ action }: HomeContentProps) {
   const newFacesSectionRef = useRef<HTMLElement>(null);
+
   const scrollToForm = useCallback(() => {
     const el = document.getElementById("apply-form");
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
   const { scrollYProgress } = useScroll({
@@ -139,36 +175,109 @@ export function HomeContent({ action }: HomeContentProps) {
 
   return (
     <main className="min-h-screen bg-transparent">
-      <section className="px-4 pb-10 pt-16 md:px-10 lg:px-20">
-        <div className="mx-auto flex max-w-6xl flex-col gap-12 lg:flex-row lg:items-center">
-          <motion.div
-            className="flex-1 space-y-7"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: "easeOut" }}
+
+      {/* ═══════════════════════════════════════════
+          HERO SECTION
+      ═══════════════════════════════════════════ */}
+      <section className="relative overflow-hidden px-4 pb-14 pt-16 md:px-10 lg:px-20">
+        {/* Giant ghost background text */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden select-none"
+        >
+          <span
+            className="text-[22vw] font-bold uppercase leading-none tracking-tighter text-white/[0.022]"
+            style={{ fontFamily: "var(--font-display), serif" }}
           >
-            <p className="text-xs uppercase tracking-[0.35em] text-amber-100/90">
-              Модельное агентство · Россия
-            </p>
-            <div className="space-y-4">
-              <h1 className="text-3xl font-medium tracking-[0.22em] md:text-5xl lg:text-6xl">
-                Премиальные модели
-                <br />
-                для брендов уровня 2026 года
-              </h1>
-              <p className="max-w-xl text-sm leading-relaxed text-muted-foreground md:text-base">
-                Sigma Models — одно из ведущих модельных агентств России. Закрытый
-                пул моделей, головной офис в Москве и филиалы в шести городах. Мы
-                работаем в премиальном сегменте: отбираем модели точечно,
-                сопровождаем карьеру кураторами и ведём проекты с брендами от
-                кастинга до продакшена.
+            SIGMA
+          </span>
+        </div>
+
+        <div className="mx-auto flex max-w-6xl flex-col gap-14 lg:flex-row lg:items-center">
+          {/* LEFT — copy */}
+          <motion.div
+            className="relative flex-1 space-y-8"
+            initial={{ opacity: 0, y: 32 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.25, 0.4, 0.25, 1] }}
+          >
+            {/* Eyebrow with animated line */}
+            <div className="flex items-center gap-4">
+              <motion.div
+                className="h-px bg-gradient-to-r from-amber-400/70 to-transparent"
+                initial={{ width: 0 }}
+                animate={{ width: 40 }}
+                transition={{ duration: 0.9, delay: 0.3, ease: "easeOut" }}
+              />
+              <p className="text-[10px] uppercase tracking-[0.42em] text-amber-300/70">
+                Модельное агентство · Россия
               </p>
             </div>
-            <div className="flex flex-wrap gap-3 text-xs md:text-sm">
+
+            {/* Main headline */}
+            <div className="space-y-3">
+              <h1
+                className="text-4xl font-medium leading-[1.08] tracking-[0.16em] md:text-5xl lg:text-[3.6rem]"
+                style={{ fontFamily: "var(--font-display), serif" }}
+              >
+                <motion.span
+                  className="block"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7, delay: 0.1 }}
+                >
+                  Премиальные
+                </motion.span>
+                <motion.span
+                  className="text-gold-shimmer block"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7, delay: 0.22 }}
+                >
+                  модели
+                </motion.span>
+                <motion.span
+                  className="block text-foreground/80"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7, delay: 0.34 }}
+                >
+                  для брендов
+                </motion.span>
+                <motion.span
+                  className="block text-muted-foreground/60"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7, delay: 0.44 }}
+                  style={{ fontSize: "0.55em", letterSpacing: "0.28em" }}
+                >
+                  уровня 2026 года
+                </motion.span>
+              </h1>
+            </div>
+
+            <motion.p
+              className="max-w-md text-sm leading-[1.85] text-muted-foreground/80 md:text-[0.95rem]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.9, delay: 0.55 }}
+            >
+              Sigma Models — одно из ведущих модельных агентств России.
+              Закрытый пул, головной офис в Москве, филиалы в шести городах.
+              Отбираем модели точечно, сопровождаем карьеру кураторами и ведём
+              проекты с брендами от кастинга до продакшена.
+            </motion.p>
+
+            <motion.div
+              className="flex flex-wrap items-center gap-3"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.65 }}
+            >
               <Button
                 type="button"
                 onClick={scrollToForm}
-                className="hero-cta-glow px-6 py-2 text-[11px] font-medium uppercase tracking-[0.24em]"
+                className="hero-cta-glow px-7 py-2.5 text-[10px] font-semibold uppercase tracking-[0.28em]"
               >
                 Анкета модели
               </Button>
@@ -176,340 +285,482 @@ export function HomeContent({ action }: HomeContentProps) {
                 type="button"
                 variant="outline"
                 asChild
-                className="border-border/70 px-6 py-2 text-[11px] font-medium uppercase tracking-[0.24em]"
+                className="btn-outline-gold px-7 py-2.5 text-[10px] font-medium uppercase tracking-[0.28em]"
               >
                 <Link href="/invite">Вход по приглашению</Link>
               </Button>
-            </div>
+            </motion.div>
+
+            {/* Mini stat strip */}
+            <motion.div
+              className="flex gap-8 pt-2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.9, delay: 0.8 }}
+            >
+              {[
+                { v: "10+", l: "лет" },
+                { v: "500+", l: "кампаний" },
+                { v: "6", l: "городов" },
+              ].map(({ v, l }) => (
+                <div key={l} className="flex flex-col gap-0.5">
+                  <span className="text-lg font-semibold tracking-tight text-amber-200/90 stat-value">
+                    {v}
+                  </span>
+                  <span className="text-[9px] uppercase tracking-[0.26em] text-muted-foreground/50">
+                    {l}
+                  </span>
+                </div>
+              ))}
+            </motion.div>
           </motion.div>
 
+          {/* RIGHT — gallery mosaic */}
           <motion.div
             className="flex-1"
-            initial={{ opacity: 0, x: 32 }}
+            initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+            transition={{ duration: 0.9, ease: [0.25, 0.4, 0.25, 1], delay: 0.1 }}
           >
-            <div className="relative h-[360px] rounded-[2.2rem] border border-white/15 bg-black/35 p-4 md:h-[420px]">
-              <div className="grid h-full grid-cols-3 gap-3">
+            <div className="relative h-[400px] rounded-[2rem] border border-white/10 bg-black/30 p-3 shadow-[0_0_80px_rgba(0,0,0,0.5)] md:h-[460px]">
+              {/* Decorative corner accent */}
+              <div className="pointer-events-none absolute -right-px -top-px h-16 w-16">
+                <div className="absolute right-0 top-0 h-px w-10 bg-gradient-to-l from-amber-400/40 to-transparent" />
+                <div className="absolute right-0 top-0 h-10 w-px bg-gradient-to-b from-amber-400/40 to-transparent" />
+              </div>
+              <div className="pointer-events-none absolute -bottom-px -left-px h-16 w-16">
+                <div className="absolute bottom-0 left-0 h-px w-10 bg-gradient-to-r from-amber-400/30 to-transparent" />
+                <div className="absolute bottom-0 left-0 h-10 w-px bg-gradient-to-t from-amber-400/30 to-transparent" />
+              </div>
+
+              <div className="grid h-full grid-cols-3 gap-2.5">
+                {/* Large image */}
                 <Dialog>
                   <DialogTrigger asChild>
                     <button
                       type="button"
-                      className="group relative col-span-2 overflow-hidden rounded-[1.8rem] shadow-[0_0_0_1px_rgba(255,255,255,0.06)] transition-shadow duration-300 focus-visible:outline-none focus-visible:ring-0 hover:shadow-[0_0_40px_rgba(247,210,106,0.12),0_0_0_1px_rgba(247,210,106,0.2)]"
+                      className="group relative col-span-2 overflow-hidden rounded-[1.6rem] focus-visible:outline-none focus-visible:ring-0 model-card-glow"
                     >
                       <motion.div
                         className="relative h-full w-full"
-                        initial={{ y: 18 }}
+                        initial={{ y: 20 }}
                         animate={{ y: 0 }}
-                        transition={{ duration: 1, ease: "easeOut" }}
+                        transition={{ duration: 1.1, ease: "easeOut" }}
                       >
                         <Image
                           src="/models/hero-1-new.jpg"
-                          alt="Sigma Models — модель портфолио"
+                          alt="Sigma Models — модель"
                           fill
-                          className="origin-center object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
+                          className="origin-center object-cover object-center transition-transform duration-700 ease-out group-hover:scale-108"
                           sizes="(min-width: 1024px) 480px, 60vw"
                         />
-                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
+                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
+                        <div className="absolute bottom-4 left-4 space-y-0.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                          <p className="text-[9px] uppercase tracking-[0.28em] text-amber-200/70">Portfolio</p>
+                          <p className="text-xs font-medium tracking-[0.16em] text-white">Sigma Models</p>
+                        </div>
                       </motion.div>
                     </button>
                   </DialogTrigger>
-                  <DialogContent className="border-border/70 bg-background/95 max-h-[92vh] overflow-hidden p-4 sm:max-w-3xl">
-                  <div className="mx-auto w-full max-h-[calc(92vh-2rem)] overflow-y-auto rounded-xl bg-black">
-                    <div className="relative w-full min-h-[70vh] pb-[178%]">
-                        <Image
-                          src="/models/hero-1-new.jpg"
-                          alt="Sigma Models — модель портфолио"
-                          fill
-                          className="object-contain"
-                          sizes="(min-width: 768px) 800px, 100vw"
-                        />
+                  <DialogContent className="border-border/50 bg-background/95 max-h-[92vh] overflow-hidden p-4 sm:max-w-3xl">
+                    <div className="mx-auto w-full max-h-[calc(92vh-2rem)] overflow-y-auto rounded-xl bg-black">
+                      <div className="relative w-full min-h-[70vh] pb-[178%]">
+                        <Image src="/models/hero-1-new.jpg" alt="Sigma Models — портфолио" fill className="object-contain" sizes="(min-width: 768px) 800px, 100vw" />
                       </div>
                     </div>
                   </DialogContent>
                 </Dialog>
 
+                {/* Two stacked small images */}
                 <motion.div
-                  className="col-span-1 flex flex-col gap-3"
-                  initial={{ y: -18 }}
+                  className="col-span-1 flex flex-col gap-2.5"
+                  initial={{ y: -20 }}
                   animate={{ y: 0 }}
-                  transition={{ duration: 1, ease: "easeOut", delay: 0.08 }}
+                  transition={{ duration: 1.1, ease: "easeOut", delay: 0.08 }}
                 >
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <button
-                        type="button"
-                        className="group relative flex-1 overflow-hidden rounded-[1.5rem] shadow-[0_0_0_1px_rgba(255,255,255,0.06)] transition-shadow duration-300 hover:shadow-[0_0_28px_rgba(247,210,106,0.1),0_0_0_1px_rgba(247,210,106,0.15)] focus-visible:outline-none focus-visible:ring-0"
-                      >
-                        <Image
-                          src="/models/hero-2-new.jpg"
-                          alt="Sigma Models — модель портфолио"
-                          fill
-                          className="origin-center object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
-                          sizes="220px"
-                        />
-                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
-                      </button>
-                    </DialogTrigger>
-                    <DialogContent className="border-border/70 bg-background/95 max-h-[92vh] overflow-hidden p-4 sm:max-w-lg">
-                      <div className="mx-auto w-full max-h-[calc(92vh-2rem)] overflow-y-auto rounded-xl bg-black">
-                        <div className="relative w-full min-h-[70vh] pb-[178%]">
+                  {[
+                    { src: "/models/hero-2-new.jpg", key: "hero2" },
+                    { src: "/models/hero-3-new.jpg", key: "hero3" },
+                  ].map(({ src, key }) => (
+                    <Dialog key={key}>
+                      <DialogTrigger asChild>
+                        <button
+                          type="button"
+                          className="group relative flex-1 overflow-hidden rounded-[1.3rem] focus-visible:outline-none focus-visible:ring-0 model-card-glow"
+                        >
                           <Image
-                            src="/models/hero-2-new.jpg"
-                            alt="Sigma Models — модель портфолио"
+                            src={src}
+                            alt="Sigma Models — портфолио"
                             fill
-                            className="object-contain"
-                            sizes="(min-width: 768px) 520px, 100vw"
+                            className="origin-center object-cover object-center transition-transform duration-700 ease-out group-hover:scale-108"
+                            sizes="220px"
                           />
+                          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="border-border/50 bg-background/95 max-h-[92vh] overflow-hidden p-4 sm:max-w-lg">
+                        <div className="mx-auto w-full max-h-[calc(92vh-2rem)] overflow-y-auto rounded-xl bg-black">
+                          <div className="relative w-full min-h-[70vh] pb-[178%]">
+                            <Image src={src} alt="Sigma Models — портфолио" fill className="object-contain" sizes="(min-width: 768px) 520px, 100vw" />
+                          </div>
                         </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <button
-                        type="button"
-                        className="group relative flex-1 overflow-hidden rounded-[1.5rem] shadow-[0_0_0_1px_rgba(255,255,255,0.06)] transition-shadow duration-300 hover:shadow-[0_0_28px_rgba(247,210,106,0.1),0_0_0_1px_rgba(247,210,106,0.15)] focus-visible:outline-none focus-visible:ring-0"
-                      >
-                        <Image
-                          src="/models/hero-3-new.jpg"
-                          alt="Sigma Models — модель портфолио"
-                          fill
-                          className="origin-center object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
-                          sizes="220px"
-                        />
-                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
-                      </button>
-                    </DialogTrigger>
-                    <DialogContent className="border-border/70 bg-background/95 max-h-[92vh] overflow-hidden p-4 sm:max-w-lg">
-                      <div className="mx-auto w-full max-h-[calc(92vh-2rem)] overflow-y-auto rounded-xl bg-black">
-                        <div className="relative w-full min-h-[70vh] pb-[178%]">
-                          <Image
-                            src="/models/hero-3-new.jpg"
-                            alt="Sigma Models — модель портфолио"
-                            fill
-                            className="object-contain"
-                            sizes="(min-width: 768px) 520px, 100vw"
-                          />
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                      </DialogContent>
+                    </Dialog>
+                  ))}
                 </motion.div>
               </div>
-              <div className="pointer-events-none absolute inset-0 rounded-[2.2rem] border border-white/15" />
+
+              <div className="pointer-events-none absolute inset-0 rounded-[2rem] border border-white/8" />
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* NEW FACES — карточки распадаются при скролле, освобождая центр подиума */}
+      {/* ═══════════════════════════════════════════
+          MARQUEE BRAND TICKER
+      ═══════════════════════════════════════════ */}
+      <div className="border-y border-white/6 bg-black/50 py-3 overflow-hidden">
+        <div className="marquee-container">
+          <div className="marquee-track flex items-center gap-0 whitespace-nowrap">
+            {[...MARQUEE_BRANDS, ...MARQUEE_BRANDS].map((brand, i) => (
+              <span key={i} className="flex items-center gap-6 px-8">
+                <span className="text-[10px] font-medium uppercase tracking-[0.35em] text-muted-foreground/50">
+                  {brand}
+                </span>
+                <span className="h-px w-4 bg-amber-400/20" />
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════
+          NEW FACES
+      ═══════════════════════════════════════════ */}
       <motion.section
         ref={newFacesSectionRef}
-        className="px-4 pb-14 md:px-10 lg:px-20"
-        initial={{ opacity: 0, y: 16 }}
+        className="px-4 pb-16 pt-14 md:px-10 lg:px-20"
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.08 }}
-        transition={{ duration: 0.5, ease: [0.25, 0.4, 0.25, 1] }}
+        viewport={{ once: true, amount: 0.06 }}
+        transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
       >
-        <div className="mx-auto max-w-6xl space-y-6">
-          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
-            <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-                New Faces
-              </p>
-              <h2 className="text-lg font-medium tracking-[0.18em] text-foreground md:text-xl">
+        <div className="mx-auto max-w-6xl space-y-8">
+          {/* Section header */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center gap-4">
+                <div className="h-px w-8 bg-gradient-to-r from-amber-400/60 to-transparent" />
+                <p className="text-[10px] uppercase tracking-[0.38em] text-amber-300/60">
+                  New Faces · 2026
+                </p>
+              </div>
+              <h2
+                className="text-2xl font-medium tracking-[0.14em] text-foreground md:text-3xl"
+                style={{ fontFamily: "var(--font-display), serif" }}
+              >
                 Новые лица Sigma
               </h2>
-              <p className="max-w-xl text-xs leading-relaxed text-muted-foreground md:text-sm">
+              <p className="max-w-md text-xs leading-relaxed text-muted-foreground/70 md:text-sm">
                 Таланты, с которыми мы недавно начали работу. Каждое лицо прошло
-                отбор и тестовую съёмку — ниже истории карьерного роста в агентстве.
+                отбор и тестовую съёмку — ниже истории карьерного роста.
               </p>
             </div>
+            <div className="shrink-0">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-4 py-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-400/70" />
+                <span className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground/60">
+                  Закрытый набор
+                </span>
+              </div>
+            </div>
           </div>
+
+          {/* Model cards grid */}
           <motion.div
             className="grid gap-4 sm:grid-cols-2 md:grid-cols-3"
             variants={staggerWrap}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.06 }}
+            viewport={{ once: true, amount: 0.05 }}
           >
             {NEW_FACES.map((model, index) => {
               const col = index % COLS;
               const cardX = col === 0 ? leftX : col === 2 ? rightX : undefined;
               const cardScale = col === 1 ? centerScale : undefined;
               return (
-              <motion.div
-                key={model.name}
-                variants={itemVariants}
-                style={{ x: cardX, scale: cardScale }}
-                transition={{ type: "spring", stiffness: 100, damping: 20 }}
-              >
-                <Dialog>
-                <DialogTrigger asChild>
-                  <button
-                    type="button"
-                    className="group block w-full text-left focus-visible:outline-none focus-visible:ring-0"
-                  >
-                    <Card className="overflow-hidden border-border/50 bg-black/60 px-3 pb-3 pt-3 transition-transform duration-300 ease-out group-hover:-translate-y-1 group-hover:shadow-xl">
-                      <div className="relative mb-3 h-64 overflow-hidden rounded-2xl sm:h-56 md:h-52">
-                        <Image
-                          src={model.src}
-                          alt={model.name}
-                          fill
-                          className="origin-center object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
-                          sizes="(min-width: 1024px) 260px, 40vw"
-                        />
-                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                <motion.div
+                  key={model.name}
+                  variants={itemVariants}
+                  style={{ x: cardX, scale: cardScale }}
+                  transition={{ type: "spring", stiffness: 90, damping: 22 }}
+                >
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <button type="button" className="group block w-full text-left focus-visible:outline-none focus-visible:ring-0">
+                        <div className="card-noise relative overflow-hidden rounded-2xl border border-white/8 bg-black/55 transition-all duration-400 model-card-glow">
+                          {/* Image area */}
+                          <div className="relative h-72 overflow-hidden sm:h-64 md:h-60">
+                            <Image
+                              src={model.src}
+                              alt={model.name}
+                              fill
+                              className="origin-center object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                              sizes="(min-width: 1024px) 280px, 45vw"
+                            />
+                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+                            {/* Height badge */}
+                            <div className="absolute right-3 top-3 rounded-full border border-white/15 bg-black/60 px-2.5 py-1 backdrop-blur-sm">
+                              <span className="text-[9px] uppercase tracking-[0.24em] text-amber-200/70">
+                                {model.height} см
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Info area */}
+                          <div className="px-4 pb-4 pt-3">
+                            <div className="flex items-end justify-between">
+                              <div className="space-y-0.5">
+                                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground">
+                                  {model.name}
+                                </p>
+                                <p className="text-[10px] text-muted-foreground/60">
+                                  {model.city}
+                                </p>
+                              </div>
+                              <span className="text-[9px] uppercase tracking-[0.22em] text-amber-300/50 transition-all duration-300 group-hover:text-amber-300/80">
+                                Подробнее →
+                              </span>
+                            </div>
+
+                            {/* Bottom accent line */}
+                            <div className="mt-3 h-px w-0 bg-gradient-to-r from-amber-400/50 to-transparent transition-all duration-500 group-hover:w-full" />
+                          </div>
+                        </div>
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="max-h-[90vh] overflow-y-auto border-border/50 bg-background/97 p-4 sm:max-w-xl">
+                      <div className="mx-auto w-full overflow-hidden rounded-2xl bg-black">
+                        <div className="relative w-full pb-[178%]">
+                          <Image src={model.src} alt={model.name} fill className="object-cover" sizes="(min-width: 768px) 520px, 100vw" />
+                        </div>
                       </div>
-                      <div className="space-y-0.5 text-xs">
-                        <p className="font-medium tracking-[0.12em] uppercase text-foreground">
+                      <div className="space-y-3 pt-5">
+                        <div className="flex items-center gap-3">
+                          <div className="h-px w-5 bg-amber-400/50" />
+                          <p className="text-[10px] uppercase tracking-[0.28em] text-amber-300/70">
+                            {model.city} · {model.height} см
+                          </p>
+                        </div>
+                        <h3 className="text-lg font-medium tracking-[0.16em] text-foreground" style={{ fontFamily: "var(--font-display), serif" }}>
                           {model.name}
-                        </p>
-                        <p className="text-[11px] text-muted-foreground">
-                          {model.city} · {model.height} см
+                        </h3>
+                        <p className="text-xs leading-relaxed text-muted-foreground/80 sm:text-sm">
+                          {model.story}
                         </p>
                       </div>
-                    </Card>
-                  </button>
-                </DialogTrigger>
-                <DialogContent className="max-h-[90vh] overflow-y-auto border-border/70 bg-background/95 p-4 sm:max-w-xl">
-                  <div className="mx-auto w-full overflow-hidden rounded-xl bg-black">
-                    <div className="relative w-full pb-[178%]">
-                      <Image
-                        src={model.src}
-                        alt={model.name}
-                        fill
-                        className="object-cover"
-                        sizes="(min-width: 768px) 520px, 100vw"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2 pt-4 text-sm text-muted-foreground">
-                    <p className="text-center text-xs font-medium text-foreground">
-                      {model.name} · {model.city} · {model.height} см
-                    </p>
-                    <p className="text-xs leading-relaxed sm:text-sm">
-                      {model.story}
-                    </p>
-                  </div>
-                </DialogContent>
-                </Dialog>
-              </motion.div>
-            );
+                    </DialogContent>
+                  </Dialog>
+                </motion.div>
+              );
             })}
           </motion.div>
         </div>
       </motion.section>
 
-      {/* ПОЧЕМУ SIGMA */}
+      {/* ═══════════════════════════════════════════
+          WHY SIGMA
+      ═══════════════════════════════════════════ */}
       <motion.section
-        className="border-y border-border/40 bg-black/40 px-4 py-12 md:px-10 lg:px-20"
-        initial={{ opacity: 0, y: 16 }}
+        className="relative overflow-hidden border-y border-border/30 px-4 py-16 md:px-10 lg:px-20"
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.1 }}
-        transition={{ duration: 0.5, ease: [0.25, 0.4, 0.25, 1] }}
+        viewport={{ once: true, amount: 0.08 }}
+        transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
       >
-        <div className="mx-auto max-w-6xl space-y-8">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-              Почему Sigma
-            </p>
-            <h2 className="mt-1 text-lg font-medium tracking-[0.18em] text-foreground md:text-xl">
-              Что отличает нас от массового подхода
+        {/* Background glow */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-amber-400/[0.03] via-transparent to-blue-900/[0.04]" />
+
+        <div className="mx-auto max-w-6xl space-y-10">
+          <div className="space-y-3">
+            <div className="flex items-center gap-4">
+              <div className="h-px w-8 bg-gradient-to-r from-amber-400/60 to-transparent" />
+              <p className="text-[10px] uppercase tracking-[0.38em] text-amber-300/60">
+                Почему Sigma
+              </p>
+            </div>
+            <h2
+              className="text-2xl font-medium tracking-[0.14em] text-foreground md:text-3xl"
+              style={{ fontFamily: "var(--font-display), serif" }}
+            >
+              Что отличает нас
+              <br />
+              <span className="text-muted-foreground/55 text-[0.7em] tracking-[0.2em]">
+                от массового подхода
+              </span>
             </h2>
           </div>
+
           <motion.div
             className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
             variants={staggerWrap}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.08 }}
+            viewport={{ once: true, amount: 0.06 }}
           >
             {WHY_SIGMA.map((item) => (
               <motion.div
                 key={item.title}
                 variants={itemVariants}
-                className="flex gap-3 rounded-xl border border-border/50 bg-card/40 px-4 py-4 transition-colors hover:border-primary/30"
+                className="why-card-line group relative flex flex-col gap-4 rounded-2xl border border-border/40 bg-card/30 px-5 py-5 transition-all duration-350 hover:border-amber-400/20 hover:bg-card/50"
               >
-                <span className="mt-1 h-px w-6 shrink-0 bg-primary/50" />
-                <div className="space-y-1.5">
-                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-foreground">
+                {/* Number */}
+                <span className="text-[2.5rem] font-bold leading-none tracking-tighter text-white/[0.06] transition-colors duration-300 group-hover:text-amber-400/10 select-none">
+                  {item.num}
+                </span>
+
+                <div className="space-y-2">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-foreground">
                     {item.title}
                   </p>
-                  <p className="text-[11px] leading-relaxed text-muted-foreground">
+                  <p className="text-xs leading-relaxed text-muted-foreground/65">
                     {item.text}
                   </p>
                 </div>
+
+                {/* Gold dot accent */}
+                <div className="absolute right-4 top-4 h-1 w-1 rounded-full bg-amber-400/30 transition-all duration-300 group-hover:bg-amber-400/60 group-hover:shadow-[0_0_6px_rgba(240,201,106,0.4)]" />
               </motion.div>
             ))}
           </motion.div>
         </div>
       </motion.section>
 
-      {/* Партнёры — бренды */}
+      {/* ═══════════════════════════════════════════
+          ANIMATED STATS
+      ═══════════════════════════════════════════ */}
       <motion.section
-        className="px-6 pb-12 md:px-10 lg:px-20"
+        className="px-4 py-14 md:px-10 lg:px-20"
         initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.08 }}
-        transition={{ duration: 0.5, ease: [0.25, 0.4, 0.25, 1] }}
+        viewport={{ once: true, amount: 0.12 }}
+        transition={{ duration: 0.5 }}
       >
-        <div className="mx-auto max-w-6xl space-y-5">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-              Партнёры и бренды
-            </p>
-            <h2 className="mt-1 text-lg font-medium tracking-[0.18em] text-foreground md:text-xl">
-              С кем мы сотрудничаем
-            </h2>
-            <p className="mt-2 max-w-xl text-xs text-muted-foreground md:text-sm">
-              Известные бренды, с которыми Sigma Models ведёт кампании. Нажмите на
-              карточку, чтобы узнать подробности сотрудничества.
+        <div className="mx-auto max-w-6xl">
+          <div className="grid grid-cols-2 gap-px border border-border/25 rounded-2xl overflow-hidden bg-border/25 lg:grid-cols-4">
+            {STATS.map((stat, i) => (
+              <motion.div
+                key={stat.label}
+                className="flex flex-col items-center gap-1.5 bg-background/60 px-6 py-8 text-center"
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+              >
+                <span
+                  className="text-4xl font-bold tracking-tight text-amber-200/90 stat-value md:text-5xl"
+                  style={{ fontFamily: "var(--font-display), serif" }}
+                >
+                  <Counter value={stat.value} suffix={stat.suffix} />
+                </span>
+                <span className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground/50">
+                  {stat.label}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
+      {/* ═══════════════════════════════════════════
+          BRANDS / PARTNERS
+      ═══════════════════════════════════════════ */}
+      <motion.section
+        className="border-t border-border/25 px-4 pb-16 pt-14 md:px-10 lg:px-20"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.06 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="mx-auto max-w-6xl space-y-8">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center gap-4">
+                <div className="h-px w-8 bg-gradient-to-r from-amber-400/60 to-transparent" />
+                <p className="text-[10px] uppercase tracking-[0.38em] text-amber-300/60">
+                  Партнёры и бренды
+                </p>
+              </div>
+              <h2
+                className="text-2xl font-medium tracking-[0.14em] text-foreground md:text-3xl"
+                style={{ fontFamily: "var(--font-display), serif" }}
+              >
+                С кем мы работаем
+              </h2>
+            </div>
+            <p className="max-w-sm text-xs leading-relaxed text-muted-foreground/60 sm:text-right">
+              Нажмите на бренд, чтобы узнать подробности сотрудничества.
             </p>
           </div>
+
           <motion.div
             className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
             variants={staggerWrap}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.06 }}
+            viewport={{ once: true, amount: 0.05 }}
           >
             {PARTNER_BRANDS.map((brand) => (
               <motion.div key={brand.name} variants={itemVariants}>
                 <Dialog>
                   <DialogTrigger asChild>
                     <button
-                    type="button"
-                    className="w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  >
-                    <Card className="border-border/50 bg-black/40 px-4 py-3.5 text-sm transition-colors hover:border-primary/40 hover:bg-black/50">
-                      <p className="text-xs font-medium uppercase tracking-[0.2em] text-amber-100/90">
+                      type="button"
+                      className="w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    >
+                      <div className="brand-badge group relative overflow-hidden rounded-2xl border border-border/35 bg-black/35 px-5 py-4">
+                        {/* Hover gradient overlay */}
+                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-amber-400/0 to-amber-400/0 transition-all duration-500 group-hover:from-amber-400/4 group-hover:to-transparent" />
+
+                        <div className="relative flex items-center justify-between">
+                          <div className="space-y-1">
+                            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-amber-100/85">
+                              {brand.name}
+                            </p>
+                            <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/50">
+                              {brand.category}
+                            </p>
+                          </div>
+                          <span className="text-[10px] text-muted-foreground/30 transition-all duration-300 group-hover:text-amber-300/60">
+                            →
+                          </span>
+                        </div>
+
+                        {/* Bottom reveal line */}
+                        <div className="mt-3 h-px w-0 bg-gradient-to-r from-amber-400/40 to-transparent transition-all duration-400 group-hover:w-full" />
+                      </div>
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="border-border/50 bg-background/97 p-6 sm:max-w-md">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-px w-5 bg-amber-400/50" />
+                        <p className="text-[10px] uppercase tracking-[0.28em] text-amber-300/60">
+                          {brand.category}
+                        </p>
+                      </div>
+                      <h3
+                        className="text-2xl font-medium tracking-tight text-foreground"
+                        style={{ fontFamily: "var(--font-display), serif" }}
+                      >
                         {brand.name}
+                      </h3>
+                      <p className="text-sm leading-relaxed text-muted-foreground/75">
+                        {brand.detail}
                       </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {brand.category}
-                      </p>
-                      <p className="mt-2 text-[11px] text-muted-foreground/80">
-                        Нажмите, чтобы подробнее →
-                      </p>
-                    </Card>
-                  </button>
-                </DialogTrigger>
-                <DialogContent className="border-border/70 bg-background/95 p-5 sm:max-w-md">
-                  <div className="space-y-3">
-                    <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
-                      {brand.category}
-                    </p>
-                    <h3 className="text-xl font-medium tracking-tight text-foreground">
-                      {brand.name}
-                    </h3>
-                    <p className="text-sm leading-relaxed text-muted-foreground">
-                      {brand.detail}
-                    </p>
-                  </div>
-                </DialogContent>
+                    </div>
+                  </DialogContent>
                 </Dialog>
               </motion.div>
             ))}
@@ -517,58 +768,111 @@ export function HomeContent({ action }: HomeContentProps) {
         </div>
       </motion.section>
 
-      <section className="border-y border-border/40 bg-black/60 px-6 py-5 md:px-10 lg:px-20">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-4 text-center text-[11px] text-muted-foreground md:justify-between md:text-left">
-          <span className="uppercase tracking-[0.25em]">Москва · Россия</span>
-          <span className="hidden h-px w-6 bg-border/60 md:inline" />
-          <span className="uppercase tracking-[0.2em]">10+ лет на рынке</span>
-          <span className="h-px w-6 bg-border/60" />
-          <span className="uppercase tracking-[0.2em]">500+ кампаний</span>
-          <span className="h-px w-6 bg-border/60" />
-          <span>Премиальный сегмент · Вход по приглашению или одобренной анкете</span>
-        </div>
-      </section>
-
-      <section className="px-6 py-8 md:px-10 lg:px-20">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs text-muted-foreground md:text-sm">
-              Головной офис в Москве и филиалы в Санкт‑Петербурге, Казани,
-              Екатеринбурге, Новосибирске и Сочи. Единые стандарты и кураторство в каждом городе.
-            </p>
-          </div>
+      {/* ═══════════════════════════════════════════
+          GEOGRAPHY STRIP
+      ═══════════════════════════════════════════ */}
+      <section className="border-y border-border/25 bg-black/55 px-4 py-4 md:px-10 lg:px-20">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-5 md:justify-between">
+          {[
+            "Москва",
+            "Санкт‑Петербург",
+            "Казань",
+            "Екатеринбург",
+            "Новосибирск",
+            "Сочи",
+          ].map((city, i) => (
+            <span key={city} className="flex items-center gap-5">
+              <span className="text-[10px] uppercase tracking-[0.28em] text-muted-foreground/45">
+                {city}
+              </span>
+              {i < 5 && (
+                <span className="hidden h-px w-4 bg-border/40 md:inline-block" />
+              )}
+            </span>
+          ))}
           <a
             href="/branches"
-            className="shrink-0 text-xs uppercase tracking-[0.24em] text-amber-200/90 underline-offset-4 hover:text-amber-100 hover:underline"
+            className="text-[10px] uppercase tracking-[0.28em] text-amber-300/60 underline-offset-4 transition-colors hover:text-amber-200/90 hover:underline"
           >
-            Смотреть все филиалы
+            Все филиалы →
           </a>
         </div>
       </section>
 
+      {/* ═══════════════════════════════════════════
+          APPLY FORM
+      ═══════════════════════════════════════════ */}
       <section
         id="apply-form"
-        className="border-t border-border/40 bg-gradient-to-b from-[#f7e4b0] via-[#faf0cf] to-[#ffffff] px-6 py-10 text-neutral-900 md:px-10 lg:px-20"
+        className="relative overflow-hidden border-t border-border/20 px-4 py-16 md:px-10 lg:px-20"
       >
-        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1.6fr)]">
-          <div className="space-y-4">
-            <p className="text-xs uppercase tracking-[0.25em] text-neutral-500">
-              Анкета для моделей
-            </p>
-            <h2 className="text-xl font-medium tracking-tight text-neutral-900 md:text-2xl">
-              Стать моделью Sigma
-            </h2>
-            <p className="text-sm leading-relaxed text-neutral-600">
+        {/* Background: gradient from gold to dark */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#1a1408] via-[#0e0e14] to-[#0b0b12]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(240,201,106,0.09),transparent)]" />
+
+        <div className="relative mx-auto grid max-w-6xl gap-12 md:grid-cols-[1fr_1.5fr]">
+          {/* Left: copy */}
+          <motion.div
+            className="space-y-6"
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+          >
+            <div className="space-y-3">
+              <div className="flex items-center gap-4">
+                <div className="h-px w-8 bg-gradient-to-r from-amber-400/60 to-transparent" />
+                <p className="text-[10px] uppercase tracking-[0.38em] text-amber-300/60">
+                  Анкета модели
+                </p>
+              </div>
+              <h2
+                className="text-3xl font-medium tracking-[0.1em] text-foreground md:text-4xl"
+                style={{ fontFamily: "var(--font-display), serif" }}
+              >
+                Стать моделью
+                <br />
+                <span className="text-gold-shimmer">Sigma</span>
+              </h2>
+            </div>
+            <p className="text-sm leading-[1.9] text-muted-foreground/65">
               Мы рассматриваем анкеты выборочно и связываемся только с
               подходящими под премиальный сегмент кандидатами. Укажите реальные
-              параметры, возраст, рост и прикрепите ссылки на актуальные фото
-              (соцсети, облако). После одобрения вы получите приглашение в систему
-              и доступ к личному кабинету.
+              параметры, возраст, рост и прикрепите ссылки на актуальные фото.
+              После одобрения вы получите приглашение в систему.
             </p>
-          </div>
-          <div className="rounded-2xl border border-neutral-200 bg-white/80 p-4 shadow-[0_18px_60px_rgba(15,23,42,0.14)]">
-            <ApplyForm action={action} />
-          </div>
+
+            {/* Process steps */}
+            <div className="space-y-3 pt-2">
+              {[
+                "Заполните анкету с реальными данными",
+                "Мы рассматриваем в течение 5–7 дней",
+                "Подходящие кандидаты получают приглашение",
+              ].map((step, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-amber-400/25 text-[9px] font-semibold text-amber-300/60">
+                    {i + 1}
+                  </span>
+                  <p className="text-xs leading-relaxed text-muted-foreground/55">
+                    {step}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Right: form card */}
+          <motion.div
+            className="gradient-border rounded-2xl bg-white/[0.04] p-px"
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+          >
+            <div className="rounded-2xl bg-black/50 p-6 backdrop-blur-sm">
+              <ApplyForm action={action} />
+            </div>
+          </motion.div>
         </div>
       </section>
     </main>
@@ -581,19 +885,24 @@ function ApplyForm({ action }: { action: HomeContentProps["action"] }) {
       action={action as (formData: FormData) => void | Promise<void>}
       className="space-y-4 text-sm"
     >
-      <div className="grid gap-3">
+      <div className="grid gap-3.5">
         <div className="space-y-1.5">
-          <Label htmlFor="fullName">Имя и фамилия</Label>
+          <Label htmlFor="fullName" className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground/70">
+            Имя и фамилия
+          </Label>
           <Input
             id="fullName"
             name="fullName"
             required
             placeholder="Например: Анна Иванова"
+            className="border-white/10 bg-white/5 text-foreground placeholder:text-muted-foreground/30 focus:border-amber-400/30 focus:ring-amber-400/10"
           />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label htmlFor="age">Возраст</Label>
+            <Label htmlFor="age" className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground/70">
+              Возраст
+            </Label>
             <Input
               id="age"
               name="age"
@@ -601,10 +910,13 @@ function ApplyForm({ action }: { action: HomeContentProps["action"] }) {
               min={14}
               max={40}
               required
+              className="border-white/10 bg-white/5 text-foreground placeholder:text-muted-foreground/30 focus:border-amber-400/30"
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="height">Рост (см)</Label>
+            <Label htmlFor="height" className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground/70">
+              Рост (см)
+            </Label>
             <Input
               id="height"
               name="height"
@@ -612,56 +924,75 @@ function ApplyForm({ action }: { action: HomeContentProps["action"] }) {
               min={150}
               max={200}
               required
+              className="border-white/10 bg-white/5 text-foreground placeholder:text-muted-foreground/30 focus:border-amber-400/30"
             />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label htmlFor="parameters">Параметры</Label>
+            <Label htmlFor="parameters" className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground/70">
+              Параметры
+            </Label>
             <Input
               id="parameters"
               name="parameters"
-              placeholder="Например: 83-60-90"
+              placeholder="83-60-90"
               required
+              className="border-white/10 bg-white/5 text-foreground placeholder:text-muted-foreground/30 focus:border-amber-400/30"
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="city">Город</Label>
-            <Input id="city" name="city" placeholder="Ваш город" required />
+            <Label htmlFor="city" className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground/70">
+              Город
+            </Label>
+            <Input
+              id="city"
+              name="city"
+              placeholder="Ваш город"
+              required
+              className="border-white/10 bg-white/5 text-foreground placeholder:text-muted-foreground/30 focus:border-amber-400/30"
+            />
           </div>
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email" className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground/70">
+            Email
+          </Label>
           <Input
             id="email"
             name="email"
             type="email"
             required
             placeholder="Контактный email"
+            className="border-white/10 bg-white/5 text-foreground placeholder:text-muted-foreground/30 focus:border-amber-400/30"
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="photos">Ссылки на фото</Label>
+          <Label htmlFor="photos" className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground/70">
+            Ссылки на фото
+          </Label>
           <Textarea
             id="photos"
             name="photos"
             required
             placeholder="Ссылки на ваши актуальные фото (VK, соцсети, облако и т.п.)"
-            className="min-h-[80px] resize-none"
+            className="min-h-[80px] resize-none border-white/10 bg-white/5 text-foreground placeholder:text-muted-foreground/30 focus:border-amber-400/30"
           />
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Button type="submit" className="w-full">
+      <div className="space-y-3 pt-1">
+        <Button
+          type="submit"
+          className="hero-cta-glow w-full py-3 text-[10px] font-semibold uppercase tracking-[0.28em]"
+        >
           Отправить анкету
         </Button>
-        <p className="text-[11px] leading-relaxed text-muted-foreground">
+        <p className="text-center text-[10px] leading-relaxed text-muted-foreground/40">
           Отправляя анкету, вы подтверждаете согласие на обработку персональных
-          данных и получение обратной связи от агентства Sigma Models.
+          данных в соответствии с политикой Sigma Models.
         </p>
       </div>
     </form>
   );
 }
-
