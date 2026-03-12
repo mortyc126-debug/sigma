@@ -2,7 +2,6 @@ import { unstable_noStore } from "next/cache";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import Image from "next/image";
-import { Card } from "@/components/ui/card";
 
 export async function ModelOverviewSection() {
   unstable_noStore();
@@ -46,18 +45,13 @@ export async function ModelOverviewSection() {
   const previewPhotos =
     photos?.map((p: any) => ({
       id: p.id as string,
-      url: supabaseAdmin.storage.from(bucket).getPublicUrl(p.image_path).data
-        .publicUrl,
+      url: supabaseAdmin.storage.from(bucket).getPublicUrl(p.image_path).data.publicUrl,
     })) ?? [];
 
   const avatarPosX =
-    profile?.avatar_position_x != null
-      ? Number(profile.avatar_position_x)
-      : 50;
+    profile?.avatar_position_x != null ? Number(profile.avatar_position_x) : 50;
   const avatarPosY =
-    profile?.avatar_position_y != null
-      ? Number(profile.avatar_position_y)
-      : 50;
+    profile?.avatar_position_y != null ? Number(profile.avatar_position_y) : 50;
   const name = profile?.full_name || profile?.email || "Модель";
   const initials = name
     .split(" ")
@@ -66,116 +60,114 @@ export async function ModelOverviewSection() {
     .map((part: string) => part[0]?.toUpperCase())
     .join("");
 
+  const specs = [
+    { label: "Рост", value: model?.height_cm ? `${model.height_cm} см` : "—" },
+    { label: "Параметры", value: model?.parameters || "—" },
+    { label: "Глаза", value: model?.eye_color || "—" },
+    { label: "Волосы", value: model?.hair_color || "—" },
+  ];
+
   return (
-    <Card className="border-border/70 bg-card/60 px-4 py-4 sm:px-5">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-4">
-          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full border border-border/70 bg-black/50 ring-1 ring-border/30 text-sm font-medium tracking-[0.16em] uppercase">
-            {profile?.avatar_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={profile.avatar_url}
-                alt={name}
-                className="absolute inset-0 h-full w-full rounded-full object-cover"
-                style={{
-                  objectPosition: `${Number.isNaN(avatarPosX) ? 50 : avatarPosX}% ${Number.isNaN(avatarPosY) ? 50 : avatarPosY}%`,
-                  transform: "translateZ(0)",
-                }}
-              />
-            ) : (
-              <span className="flex h-full w-full items-center justify-center">
-                {initials || "SM"}
-              </span>
-            )}
-          </div>
-          <div className="space-y-1 text-xs md:text-sm">
-            <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">
-              Профиль модели
-            </p>
-            <p className="text-sm font-medium tracking-[0.12em] uppercase">
-              {name}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {model?.city || "Город не указан"}
-            </p>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-3 text-xs md:text-xs">
-          <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
-              Рост
-            </p>
-            <p className="mt-1 text-sm">
-              {model?.height_cm ? `${model.height_cm} см` : "—"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
-              Параметры
-            </p>
-            <p className="mt-1 text-sm">
-              {model?.parameters || "—"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
-              Цвет глаз
-            </p>
-            <p className="mt-1 text-sm">
-              {model?.eye_color || "—"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
-              Цвет волос
-            </p>
-            <p className="mt-1 text-sm">
-              {model?.hair_color || "—"}
-            </p>
-          </div>
-        </div>
-      </div>
-      {previewPhotos.length > 0 && (
-        <div className="mt-4 border-t border-border/40 pt-4">
-          <p className="mb-2 text-xs uppercase tracking-[0.26em] text-muted-foreground">
-            Превью портфолио
-          </p>
-          <div className="flex gap-2">
-            {previewPhotos.map((photo: { id: string; url: string }) => (
-              <div
-                key={photo.id}
-                className="relative h-28 w-20 overflow-hidden rounded-md border border-border/60 bg-black/60"
-              >
-                <Image
-                  src={photo.url}
-                  alt="Фото портфолио"
-                  fill
-                  className="object-cover"
+    <div className="gradient-border rounded-2xl bg-white/[0.025] p-px">
+      <div className="rounded-2xl bg-black/60 px-4 py-5 sm:px-5 backdrop-blur-sm">
+
+        {/* Avatar + name + specs */}
+        <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+          {/* Avatar + identity */}
+          <div className="flex items-center gap-4">
+            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full border border-white/15 bg-black/50 shadow-[0_0_18px_rgba(240,201,106,0.08)]">
+              {profile?.avatar_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={profile.avatar_url}
+                  alt={name}
+                  className="absolute inset-0 h-full w-full rounded-full object-cover"
+                  style={{
+                    objectPosition: `${Number.isNaN(avatarPosX) ? 50 : avatarPosX}% ${Number.isNaN(avatarPosY) ? 50 : avatarPosY}%`,
+                    transform: "translateZ(0)",
+                  }}
                 />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center font-condensed text-sm font-semibold uppercase tracking-[0.16em] text-amber-200/55">
+                  {initials || "SM"}
+                </span>
+              )}
+            </div>
+            <div className="space-y-1">
+              <p className="font-condensed text-[9px] font-semibold uppercase tracking-[0.32em] text-amber-300/50">
+                Профиль модели
+              </p>
+              <p
+                className="text-lg font-light tracking-[0.1em] text-foreground"
+                style={{ fontFamily: "var(--font-display), serif" }}
+              >
+                {name}
+              </p>
+              <p className="font-condensed text-[9px] font-medium uppercase tracking-[0.22em] text-muted-foreground/40">
+                {model?.city || "Город не указан"}
+              </p>
+            </div>
+          </div>
+
+          {/* Specs */}
+          <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+            {specs.map(({ label, value }) => (
+              <div key={label}>
+                <p className="font-condensed text-[9px] font-semibold uppercase tracking-[0.26em] text-muted-foreground/35">
+                  {label}
+                </p>
+                <p className="mt-0.5 text-sm text-foreground/80">{value}</p>
               </div>
             ))}
           </div>
         </div>
-      )}
-      {!vkConnection || vkConnection.status !== "completed" ? (
-        <div className="mt-4 rounded-lg border border-dashed border-border/60 bg-card/40 px-4 py-3 text-xs text-muted-foreground">
-          <p className="font-medium uppercase tracking-[0.2em] text-amber-200/90">
-            Подключите VK
-          </p>
-          <p className="mt-1">
-            Для полного доступа к возможностям агентства добавьте аккаунт VK в
-            разделе{" "}
-            <a
-              href="/dashboard/vk-connect"
-              className="text-primary underline-offset-4 hover:underline"
-            >
-              «Подключение VK»
-            </a>
-            .
-          </p>
-        </div>
-      ) : null}
-    </Card>
+
+        {/* Portfolio preview strip */}
+        {previewPhotos.length > 0 && (
+          <div className="mt-5 border-t border-white/8 pt-4">
+            <p className="mb-3 font-condensed text-[9px] font-semibold uppercase tracking-[0.3em] text-muted-foreground/35">
+              Превью портфолио
+            </p>
+            <div className="flex gap-2">
+              {previewPhotos.map((photo: { id: string; url: string }) => (
+                <div
+                  key={photo.id}
+                  className="relative h-28 w-20 overflow-hidden rounded-xl border border-white/10 bg-black/60 transition-transform duration-300 hover:scale-[1.04]"
+                >
+                  <Image
+                    src={photo.url}
+                    alt="Фото портфолио"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* VK notice */}
+        {(!vkConnection || vkConnection.status !== "completed") && (
+          <div className="mt-4 flex items-start gap-3 rounded-xl border border-amber-400/15 bg-amber-400/[0.04] px-4 py-3">
+            <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400/60" />
+            <div>
+              <p className="font-condensed text-[10px] font-semibold uppercase tracking-[0.24em] text-amber-200/75">
+                Подключите VK
+              </p>
+              <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground/50">
+                Для полного доступа к возможностям агентства добавьте аккаунт в разделе{" "}
+                <a
+                  href="/dashboard/vk-connect"
+                  className="text-amber-300/65 underline-offset-4 hover:underline"
+                >
+                  «Подключение VK»
+                </a>
+                .
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
-

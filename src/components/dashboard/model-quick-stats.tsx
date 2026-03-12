@@ -1,7 +1,6 @@
 import { unstable_noStore } from "next/cache";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase/server";
-import { Card } from "@/components/ui/card";
 import Link from "next/link";
 
 export async function ModelQuickStats() {
@@ -44,45 +43,81 @@ export async function ModelQuickStats() {
     return `${Number(value).toLocaleString("ru-RU")} ${currency}`;
   };
 
+  const stats = [
+    {
+      href: "/dashboard?tab=portfolio" as string | null,
+      label: "Фото в портфолио",
+      value: String(photoCount),
+      sub: "Перейти в портфолио →",
+      accent: false,
+    },
+    {
+      href: "/dashboard?tab=finance" as string | null,
+      label: "Текущий баланс",
+      value: formatMoney(amount),
+      sub: "Финансы и вывод →",
+      accent: true,
+    },
+    {
+      href: null,
+      label: "Запросы на вывод",
+      value: pendingPayouts === 0 ? "—" : String(pendingPayouts),
+      sub: pendingPayouts === 0 ? "В обработке нет" : "В обработке",
+      accent: false,
+    },
+  ];
+
   return (
     <div className="grid gap-3 sm:grid-cols-3">
-      <Link href="/dashboard?tab=portfolio" className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" suppressHydrationWarning>
-        <Card className="border-border/60 bg-card/50 px-4 py-3 transition-all duration-200 hover:scale-[1.02] hover:border-border hover:bg-card/70 sm:px-4">
-          <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-            Фото в портфолио
-          </p>
-          <p className="mt-1 text-xl font-medium tracking-tight tabular-nums">
-            {photoCount}
-          </p>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Перейти в портфолио →
-          </p>
-        </Card>
-      </Link>
-      <Link href="/dashboard?tab=finance" className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" suppressHydrationWarning>
-        <Card className="border-border/60 bg-card/50 px-4 py-3 transition-all duration-200 hover:scale-[1.02] hover:border-border hover:bg-card/70 sm:px-4">
-          <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-            Текущий баланс
-          </p>
-          <p className="mt-1 text-xl font-medium tracking-tight tabular-nums text-amber-200/95">
-            {formatMoney(amount)}
-          </p>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Финансы и вывод →
-          </p>
-        </Card>
-      </Link>
-      <Card className="border-border/60 bg-card/50 px-4 py-3">
-        <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-          Запросы на вывод
-        </p>
-        <p className="mt-1 text-xl font-medium tracking-tight tabular-nums">
-          {pendingPayouts === 0 ? "—" : pendingPayouts}
-        </p>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          {pendingPayouts === 0 ? "В обработке нет" : "В обработке"}
-        </p>
-      </Card>
+      {stats.map((stat) => {
+        const card = (
+          <div
+            className={`gradient-border relative overflow-hidden rounded-2xl bg-white/[0.025] p-px transition-all duration-300 ${
+              stat.href ? "hover:scale-[1.015]" : ""
+            }`}
+          >
+            <div className="rounded-2xl bg-black/60 px-4 py-4 backdrop-blur-sm">
+              {/* Balance ambient glow */}
+              {stat.accent && (
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_100%,rgba(240,201,106,0.07),transparent)]" />
+              )}
+              <p className="font-condensed text-[9px] font-semibold uppercase tracking-[0.32em] text-muted-foreground/45">
+                {stat.label}
+              </p>
+              <p
+                className={`relative mt-2 text-2xl font-light tabular-nums tracking-tight ${
+                  stat.accent
+                    ? "text-amber-200/95 stat-value"
+                    : "text-foreground/90"
+                }`}
+                style={
+                  stat.accent
+                    ? { fontFamily: "var(--font-display), serif" }
+                    : undefined
+                }
+              >
+                {stat.value}
+              </p>
+              <p className="mt-1 font-condensed text-[9px] font-medium uppercase tracking-[0.2em] text-muted-foreground/30">
+                {stat.sub}
+              </p>
+            </div>
+          </div>
+        );
+
+        return stat.href ? (
+          <Link
+            key={stat.label}
+            href={stat.href}
+            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            suppressHydrationWarning
+          >
+            {card}
+          </Link>
+        ) : (
+          <div key={stat.label}>{card}</div>
+        );
+      })}
     </div>
   );
 }
