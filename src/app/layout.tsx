@@ -27,7 +27,7 @@ const barlow = Barlow_Condensed({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://sigma-models.ru"),
+  metadataBase: new URL("https://sigma-model.com"),
   title: {
     default: "Sigma Models — премиальное модельное агентство",
     template: "%s | Sigma Models",
@@ -35,6 +35,9 @@ export const metadata: Metadata = {
   description:
     "Sigma Models — закрытый пул, строгий кастинг, карьерное кураторство. Головной офис в Москве, филиалы в шести городах России.",
   keywords: ["модельное агентство", "Sigma Models", "модели Москва", "премиальный кастинг", "fashion agency Russia"],
+  verification: {
+    google: "6TKAIHhK2ybvZu_jhBljqn8bfeYjZpqqiMIbmmabI4k",
+  },
   openGraph: {
     type: "website",
     locale: "ru_RU",
@@ -42,7 +45,7 @@ export const metadata: Metadata = {
     title: "Sigma Models — закрытый пул. Строгий кастинг.",
     description:
       "Премиальное модельное агентство с головным офисом в Москве. Закрытый пул, кураторство карьеры, работа с федеральными и международными брендами.",
-    url: "https://sigma-models.ru",
+    url: "https://sigma-model.com",
     images: [
       {
         url: "/models/hero-1-new.jpg",
