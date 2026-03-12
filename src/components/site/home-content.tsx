@@ -577,7 +577,10 @@ export function HomeContent({ action }: HomeContentProps) {
 
 function ApplyForm({ action }: { action: HomeContentProps["action"] }) {
   return (
-    <form action={action} className="space-y-4 text-sm">
+    <form
+      action={action as (formData: FormData) => void | Promise<void>}
+      className="space-y-4 text-sm"
+    >
       <div className="grid gap-3">
         <div className="space-y-1.5">
           <Label htmlFor="fullName">Имя и фамилия</Label>
