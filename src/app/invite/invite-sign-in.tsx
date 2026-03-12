@@ -17,7 +17,10 @@ interface Props {
  * Если инвайт открытый (email не задан) — показываем форму ввода email.
  */
 export function InviteSignIn({ token, email }: Props) {
-  const callbackUrl = `/dashboard?invite=${encodeURIComponent(token)}`;
+  // Для именных инвайтов (email задан) — signIn callback находит инвайт по email,
+  // поэтому токен в callbackUrl не нужен → URL в письме остаётся чистым.
+  // Для открытых инвайтов (email не задан) — нужен токен, т.к. поиск по email невозможен.
+  const callbackUrl = email ? "/dashboard" : `/dashboard?invite=${encodeURIComponent(token)}`;
 
   if (email) {
     return <AutoSend email={email} token={token} callbackUrl={callbackUrl} />;
