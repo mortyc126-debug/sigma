@@ -141,7 +141,7 @@ export async function ModelOverviewSection() {
             Превью портфолио
           </p>
           <div className="flex gap-2">
-            {previewPhotos.map((photo) => (
+            {previewPhotos.map((photo: { id: string; url: string }) => (
               <div
                 key={photo.id}
                 className="relative h-28 w-20 overflow-hidden rounded-md border border-border/60 bg-black/60"
