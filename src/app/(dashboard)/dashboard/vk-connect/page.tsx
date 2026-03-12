@@ -19,7 +19,10 @@ export default async function VkConnectPage() {
     redirect("/login");
   }
 
-  const userId = session.user.id as string;
+  const userId = session.user.id;
+  if (!userId) {
+    redirect("/login");
+  }
 
   const { data: model } = await supabaseAdmin
     .from("models")
