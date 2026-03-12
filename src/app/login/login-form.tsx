@@ -10,7 +10,13 @@ import Link from "next/link";
 
 export function LoginForm() {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
+  const inviteToken = searchParams.get("token");
+  const baseCallbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
+  // Embed the invite token into callbackUrl so it survives the NextAuth
+  // email verification round-trip and reaches the signIn callback.
+  const callbackUrl = inviteToken
+    ? `${baseCallbackUrl}${baseCallbackUrl.includes("?") ? "&" : "?"}invite=${inviteToken}`
+    : baseCallbackUrl;
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "sent">("idle");
 
