@@ -11,7 +11,7 @@ type Params = {
 export default async function AdminModelPortfolioPage({
   params,
 }: {
-  params: Params;
+  params: Promise<Params>;
 }) {
   const session = await auth();
   const userId = session?.user?.id as string | undefined;
@@ -30,7 +30,7 @@ export default async function AdminModelPortfolioPage({
     redirect("/dashboard");
   }
 
-  const modelId = params.id;
+  const { id: modelId } = await params;
 
   const { data: modelRow } = await supabaseAdmin
     .from("models")
