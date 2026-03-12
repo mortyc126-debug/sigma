@@ -27,7 +27,7 @@ export async function InvitesSection() {
     })) ?? [];
 
   const baseUrl =
-    process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+    process.env.NEXTAUTH_URL ?? "https://sigma-model.com";
 
   return (
     <Card className="border-border/70 bg-card/60 px-5 py-4">

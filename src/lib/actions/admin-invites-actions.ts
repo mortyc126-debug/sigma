@@ -53,7 +53,7 @@ export async function adminCreateInvite(formData: FormData) {
   // Если email указан и Resend настроен — сразу отправляем инвайт по почте.
   if (email && resend) {
     const baseUrl =
-      process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+      process.env.NEXTAUTH_URL ?? "https://sigma-model.com";
     const inviteUrl = `${baseUrl}/invite?token=${token}`;
     const from =
       process.env.RESEND_FROM_EMAIL || "Sigma Models <official@sigma-model.com>";

@@ -132,7 +132,7 @@ export async function requestPayout(formData: FormData) {
 
     await resend.emails.send({
       from:
-        process.env.RESEND_FROM_EMAIL || "Sigma Models <no-reply@example.com>",
+        process.env.RESEND_FROM_EMAIL || "Sigma Models <no-reply@sigma-model.com>",
       to: "sigma-models@mail.ru",
       subject: `Запрос на вывод — ${profile.full_name ?? profile.email} · ${amountStr}`,
       html: emailLayout(
