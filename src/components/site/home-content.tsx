@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 
 type HomeContentProps = {
-  action: (formData: FormData) => void | Promise<void>;
+  action: (formData: FormData) => void | Promise<void | { status?: string; message?: string }>;
 };
 
 const NEW_FACES = [
