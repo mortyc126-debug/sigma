@@ -2,15 +2,23 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Условия использования",
+  title: "Условия использования — Sigma Models",
   description:
-    "Условия использования сайта и услуг модельного агентства Sigma Models.",
+    "Условия использования сайта и услуг модельного агентства Sigma Models. Правила работы с личным кабинетом, выплаты и интеллектуальная собственность.",
+  alternates: {
+    canonical: "https://sigma-model.com/terms",
+  },
+  openGraph: {
+    title: "Условия использования — Sigma Models",
+    description: "Условия использования сайта и услуг модельного агентства Sigma Models.",
+    url: "https://sigma-model.com/terms",
+  },
 };
 
 export default function TermsPage() {
   return (
     <main className="min-h-screen px-6 py-16 md:px-10 lg:px-20">
-      <div className="mx-auto max-w-3xl space-y-10">
+      <article className="mx-auto max-w-3xl space-y-10">
         <header className="space-y-2">
           <p className="text-xs uppercase tracking-[0.28em] text-primary/90">
             Правовая информация
@@ -92,7 +100,7 @@ export default function TermsPage() {
             Контакты агентства →
           </Link>
         </p>
-      </div>
+      </article>
     </main>
   );
 }
