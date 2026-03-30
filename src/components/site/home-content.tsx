@@ -387,7 +387,7 @@ export function HomeContent({ action }: HomeContentProps) {
                   <DialogTrigger asChild>
                     <button type="button" className="group relative col-span-2 overflow-hidden rounded-[1.6rem] focus-visible:outline-none focus-visible:ring-0 model-card-glow">
                       <motion.div className="relative h-full w-full" initial={{ y: 20 }} animate={{ y: 0 }} transition={{ duration: 1.1, ease: "easeOut" }}>
-                        <Image src="/models/hero-1-new.jpg" alt="Sigma Models" fill className="origin-center object-cover object-center transition-transform duration-700 group-hover:scale-105" sizes="(min-width: 1024px) 480px, 60vw" />
+                        <Image src="/models/hero-1-new.jpg" alt="Модель Sigma Models — премиальное модельное агентство Москва" fill className="origin-center object-cover object-center transition-transform duration-700 group-hover:scale-105" sizes="(min-width: 1024px) 480px, 60vw" />
                         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                         <div className="absolute bottom-4 left-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                           <p className="font-condensed text-[9px] font-semibold uppercase tracking-[0.32em] text-amber-200/70">Portfolio · Sigma</p>
@@ -397,23 +397,26 @@ export function HomeContent({ action }: HomeContentProps) {
                   </DialogTrigger>
                   <DialogContent className="border-border/50 bg-background/95 max-h-[92vh] overflow-hidden p-4 sm:max-w-3xl">
                     <div className="mx-auto w-full max-h-[calc(92vh-2rem)] overflow-y-auto rounded-xl bg-black">
-                      <div className="relative w-full pb-[178%]"><Image src="/models/hero-1-new.jpg" alt="Sigma Models" fill className="object-contain" sizes="(min-width: 768px) 800px, 100vw" /></div>
+                      <div className="relative w-full pb-[178%]"><Image src="/models/hero-1-new.jpg" alt="Портфолио модели Sigma Models — профессиональная фэшн-съёмка" fill className="object-contain" sizes="(min-width: 768px) 800px, 100vw" /></div>
                     </div>
                   </DialogContent>
                 </Dialog>
 
                 <motion.div className="col-span-1 flex flex-col gap-2.5" initial={{ y: -20 }} animate={{ y: 0 }} transition={{ duration: 1.1, ease: "easeOut", delay: 0.08 }}>
-                  {["/models/hero-2-new.jpg", "/models/hero-3-new.jpg"].map((src) => (
+                  {[
+                    { src: "/models/hero-2-new.jpg", alt: "Модель агентства Sigma Models — beauty-съёмка" },
+                    { src: "/models/hero-3-new.jpg", alt: "Модель агентства Sigma Models — editorial-съёмка" },
+                  ].map(({ src, alt }) => (
                     <Dialog key={src}>
                       <DialogTrigger asChild>
                         <button type="button" className="group relative flex-1 overflow-hidden rounded-[1.3rem] focus-visible:outline-none focus-visible:ring-0 model-card-glow">
-                          <Image src={src} alt="Sigma Models" fill className="origin-center object-cover object-center transition-transform duration-700 group-hover:scale-105" sizes="220px" />
+                          <Image src={src} alt={alt} fill className="origin-center object-cover object-center transition-transform duration-700 group-hover:scale-105" sizes="220px" />
                           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
                         </button>
                       </DialogTrigger>
                       <DialogContent className="border-border/50 bg-background/95 max-h-[92vh] overflow-hidden p-4 sm:max-w-lg">
                         <div className="mx-auto w-full max-h-[calc(92vh-2rem)] overflow-y-auto rounded-xl bg-black">
-                          <div className="relative w-full pb-[178%]"><Image src={src} alt="Sigma Models" fill className="object-contain" sizes="(min-width: 768px) 520px, 100vw" /></div>
+                          <div className="relative w-full pb-[178%]"><Image src={src} alt={alt} fill className="object-contain" sizes="(min-width: 768px) 520px, 100vw" /></div>
                         </div>
                       </DialogContent>
                     </Dialog>
@@ -486,7 +489,7 @@ export function HomeContent({ action }: HomeContentProps) {
                           <div className="relative h-80 overflow-hidden sm:h-80 md:h-72">
                             <Image
                               src={model.src}
-                              alt={model.name}
+                              alt={`${model.name} — модель ${model.segment}, ${model.city}, рост ${model.height} см`}
                               fill
                               className="origin-center object-cover transition-transform duration-700 group-hover:scale-105"
                               style={{ objectPosition: "50% 15%" }}
@@ -516,7 +519,7 @@ export function HomeContent({ action }: HomeContentProps) {
                       {/* Photo */}
                       <div className="w-full overflow-hidden bg-black">
                         <div className="relative w-full pb-[120%]">
-                          <Image src={model.src} alt={model.name} fill className="object-cover object-top" sizes="(min-width: 768px) 520px, 100vw" />
+                          <Image src={model.src} alt={`${model.name} — портфолио модели Sigma Models, ${model.city}`} fill className="object-cover object-top" sizes="(min-width: 768px) 520px, 100vw" />
                           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                           {/* Overlay name */}
                           <div className="absolute bottom-5 left-6">

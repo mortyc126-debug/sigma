@@ -1,15 +1,23 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Конфиденциальность",
+  title: "Политика конфиденциальности — Sigma Models",
   description:
-    "Политика конфиденциальности и обработки персональных данных Sigma Models.",
+    "Политика конфиденциальности и обработки персональных данных модельного агентства Sigma Models. Защита данных моделей и партнёров.",
+  alternates: {
+    canonical: "https://sigma-model.com/privacy",
+  },
+  openGraph: {
+    title: "Политика конфиденциальности — Sigma Models",
+    description: "Политика обработки персональных данных модельного агентства Sigma Models.",
+    url: "https://sigma-model.com/privacy",
+  },
 };
 
 export default function PrivacyPage() {
   return (
     <main className="min-h-screen px-6 py-16 md:px-10 lg:px-20">
-      <div className="mx-auto max-w-3xl space-y-10">
+      <article className="mx-auto max-w-3xl space-y-10">
         <header className="space-y-2">
           <p className="text-xs uppercase tracking-[0.28em] text-primary/90">
             Правовая информация
@@ -93,7 +101,7 @@ export default function PrivacyPage() {
             Контакты агентства →
           </a>
         </p>
-      </div>
+      </article>
     </main>
   );
 }

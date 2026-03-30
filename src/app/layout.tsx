@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Cormorant_Garamond, Barlow_Condensed } from "next/font/google";
 import "./globals.css";
 import { CursorSpotlight } from "@/components/cursor-spotlight";
+import { OrganizationJsonLd, WebSiteJsonLd } from "@/components/seo/json-ld";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -29,40 +30,63 @@ const barlow = Barlow_Condensed({
 export const metadata: Metadata = {
   metadataBase: new URL("https://sigma-model.com"),
   title: {
-    default: "Sigma Models — премиальное модельное агентство",
+    default: "Sigma Models — премиальное модельное агентство в Москве | Кастинг моделей",
     template: "%s | Sigma Models",
   },
   description:
-    "Sigma Models — закрытый пул, строгий кастинг, карьерное кураторство. Головной офис в Москве, филиалы в шести городах России.",
-  keywords: ["модельное агентство", "Sigma Models", "модели Москва", "премиальный кастинг", "fashion agency Russia"],
+    "Sigma Models — премиальное модельное агентство в Москве. Закрытый пул моделей, строгий кастинг, персональное кураторство карьеры. Филиалы в 6 городах России. Работаем с Zara, L'Oréal, Sberbank.",
+  keywords: [
+    "модельное агентство",
+    "модельное агентство Москва",
+    "Sigma Models",
+    "кастинг моделей",
+    "стать моделью",
+    "модели Москва",
+    "модельное агентство Россия",
+    "премиальный кастинг",
+    "fashion agency Russia",
+    "модельное агентство Санкт-Петербург",
+    "модельное агентство Казань",
+    "кастинг для съёмок",
+    "работа моделью",
+    "модельный бизнес",
+    "beauty съёмки",
+    "коммерческая съёмка моделей",
+  ],
   verification: {
     google: "6TKAIHhK2ybvZu_jhBljqn8bfeYjZpqqiMIbmmabI4k",
+  },
+  alternates: {
+    canonical: "https://sigma-model.com",
   },
   openGraph: {
     type: "website",
     locale: "ru_RU",
     siteName: "Sigma Models",
-    title: "Sigma Models — закрытый пул. Строгий кастинг.",
+    title: "Sigma Models — премиальное модельное агентство в Москве",
     description:
-      "Премиальное модельное агентство с головным офисом в Москве. Закрытый пул, кураторство карьеры, работа с федеральными и международными брендами.",
+      "Закрытый пул моделей, строгий кастинг, персональное кураторство карьеры. Работаем с федеральными и международными брендами. Филиалы в 6 городах.",
     url: "https://sigma-model.com",
     images: [
       {
         url: "/models/hero-1-new.jpg",
         width: 1200,
         height: 630,
-        alt: "Sigma Models — премиальное модельное агентство",
+        alt: "Sigma Models — премиальное модельное агентство в Москве",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sigma Models — закрытый пул. Строгий кастинг.",
-    description: "Премиальное модельное агентство России.",
+    title: "Sigma Models — премиальное модельное агентство",
+    description: "Закрытый пул, строгий кастинг, кураторство карьеры. Москва и 6 городов России.",
     images: ["/models/hero-1-new.jpg"],
   },
   icons: {
     icon: "/icon",
+  },
+  other: {
+    "theme-color": "#000000",
   },
 };
 
@@ -73,6 +97,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" className="dark" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://ooozuuppbggjwhijbwsr.supabase.co" />
+        <link rel="dns-prefetch" href="https://ooozuuppbggjwhijbwsr.supabase.co" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <OrganizationJsonLd />
+        <WebSiteJsonLd />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} ${barlow.variable} antialiased`}
         suppressHydrationWarning

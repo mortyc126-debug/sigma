@@ -4,7 +4,7 @@ export function SiteFooter() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative overflow-hidden border-t border-white/8 bg-black/70 px-4 pt-14 pb-8 md:px-10 lg:px-20">
+    <footer role="contentinfo" aria-label="Подвал сайта" className="relative overflow-hidden border-t border-white/8 bg-black/70 px-4 pt-14 pb-8 md:px-10 lg:px-20">
       {/* Subtle background glow */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_100%,rgba(240,201,106,0.04),transparent)]" />
 

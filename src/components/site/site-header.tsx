@@ -81,7 +81,7 @@ export function SiteHeader() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-7 text-[10px] uppercase tracking-[0.22em] text-muted-foreground md:flex">
+        <nav aria-label="Основная навигация" className="hidden items-center gap-7 text-[10px] uppercase tracking-[0.22em] text-muted-foreground md:flex">
           {[
             { href: "/about", label: "О нас" },
             { href: "/branches", label: "Филиалы" },
